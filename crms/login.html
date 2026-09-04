@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Criminal Record Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 50%, #0d47a1 100%);
+            padding: 20px;
+        }
+        .login-container {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            padding: 50px 40px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+            animation: fadeInUp 0.8s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-15px); }
+            40% { transform: translateX(15px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+        .logo { text-align: center; margin-bottom: 32px; }
+        .logo i {
+            font-size: 48px;
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            padding: 16px;
+            border-radius: 16px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        .logo h2 { font-size: 24px; color: #1a2a4a; margin-top: 8px; }
+        .logo p { color: #888; font-size: 14px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 500; color: #333; margin-bottom: 6px; font-size: 14px; }
+        .form-group .input-icon { position: relative; }
+        .form-group .input-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        .form-group .input-icon input {
+            width: 100%;
+            padding: 14px 18px 14px 48px;
+            border: 2px solid #e8ecf1;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .form-group .input-icon input:focus {
+            border-color: #4fc3f7;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.15);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79, 195, 247, 0.4); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+        .alert-danger { background: #ffebee; color: #c62828; border-left: 4px solid #ef5350; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #66bb6a; }
+        .login-footer { text-align: center; margin-top: 20px; color: #888; font-size: 13px; }
+        .login-footer strong { color: #0288d1; }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s ease infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <h2>CRMS</h2>
+            <p>Criminal Record Management System</p>
+        </div>
+
+        <div id="alertMessage" class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> <span id="alertText">Invalid username or password!</span>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Username</label>
+                <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="Enter your username" value="admin" required autofocus>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Enter your password" value="password" required>
+                </div>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <p>Demo Credentials: <strong>admin</strong> / <strong>password</strong></p>
+            <p>&copy; 2026 Sri Lanka Police - CRMS</p>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const alertEl = document.getElementById('alertMessage');
+            const alertText = document.getElementById('alertText');
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (!username || !password) {
+                alertEl.className = 'alert alert-danger';
+                alertText.textContent = 'Please enter both username and password!';
+                alertEl.style.display = 'block';
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+            fetch('api/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alertEl.className = 'alert alert-success';
+                    alertText.textContent = 'Login successful! Redirecting...';
+                    alertEl.style.display = 'block';
+                    
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    alertEl.className = 'alert alert-danger';
+                    alertText.textContent = data.message || 'Invalid username or password!';
+                    alertEl.style.display = 'block';
+                    
+                    document.querySelector('.login-container').style.animation = 'shake 0.5s ease';
+                    setTimeout(() => {
+                        document.querySelector('.login-container').style.animation = '';
+                    }, 500);
+                }
+            })
+            .catch(error => {
+                alertEl.className = 'alert alert-danger';
+                alertText.textContent = 'Server error. Please try again.';
+                alertEl.style.display = 'block';
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            });
+        }
+
+       
+    </script>
+</body>
+</html>

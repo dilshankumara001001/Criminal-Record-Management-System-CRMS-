@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CRMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-shield-alt"></i>
+            <span>CRMS</span>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="active"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a href="criminals.html"><i class="fas fa-user-cog"></i> <span>Criminals</span></a>
+            <a href="complaints.html"><i class="fas fa-file-alt"></i> <span>Complaints</span></a>
+            <a href="cases.html"><i class="fas fa-gavel"></i> <span>Cases</span></a>
+            <a href="reports.html"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="navbar">
+            <div class="navbar-left">
+                <h1>Dashboard</h1>
+                <span class="subtitle">Sri Lanka Police - Criminal Records</span>
+            </div>
+            <div class="navbar-right">
+                <span class="badge"><i class="fas fa-building"></i> Colombo HQ</span>
+                <div class="profile">
+                    <div class="avatar" id="userAvatar">A</div>
+                    <span id="userName">Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-skull"></i></div>
+                <div class="stat-info">
+                    <h3>Arrested</h3>
+                    <p id="stat1">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>Solved Cases</h3>
+                    <p id="stat2">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3>Under Investigation</h3>
+                    <p id="stat3">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-signature"></i></div>
+                <div class="stat-info">
+                    <h3>Today's Complaints</h3>
+                    <p id="stat4">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="recent-activity">
+            <div class="recent-header">
+                <h3><i class="fas fa-history"></i> Recent Activities</h3>
+            </div>
+            <div class="activity-list" id="activityList">
+                <p style="color:#888;">Loading activities...</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('userName').textContent = user.full_name || 'Admin';
+            document.getElementById('userAvatar').textContent = (user.full_name || 'A').charAt(0).toUpperCase();
+        }
+
+        // Load Dashboard Data
+        fetch('api/dashboard.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('stat1').textContent = data.grave_crimes || 0;
+                    document.getElementById('stat2').textContent = data.solved_cases || 0;
+                    document.getElementById('stat3').textContent = data.under_investigation || 0;
+                    document.getElementById('stat4').textContent = data.today_complaints || 0;
+                    
+                    const list = document.getElementById('activityList');
+                    list.innerHTML = '';
+                    if (data.recent_activities && data.recent_activities.length > 0) {
+                        data.recent_activities.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'activity-item';
+                            const icon = item.type === 'criminal' ? 'fa-user-plus' : 
+                                         item.type === 'complaint' ? 'fa-file-alt' : 'fa-gavel';
+                            div.innerHTML = `
+                                <div class="activity-icon bg-blue"><i class="fas ${icon}"></i></div>
+                                <div class="activity-content">
+                                    <p>${item.title}</p>
+                                    <span class="activity-time">${new Date(item.created_at).toLocaleString()}</span>
+                                </div>
+                            `;
+                            list.appendChild(div);
+                        });
+                    } else {
+                        list.innerHTML = '<p style="color:#888;">No recent activities</p>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('activityList').innerHTML = '<p style="color:#888;">Failed to load activities</p>';
+            });
+    </script>
+</body>
+</html>

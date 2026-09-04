@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints - CRMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .btn { padding: 10px 24px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, #4fc3f7, #0288d1); color: #fff; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(79,195,247,0.4); }
+        .table-container { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 14px 12px; font-weight: 600; color: #555; border-bottom: 2px solid #eee; font-size: 13px; text-transform: uppercase; }
+        td { padding: 14px 12px; border-bottom: 1px solid #f5f5f5; font-size: 14px; color: #333; }
+        tr:hover { background: #f8faff; }
+        .status-badge {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-badge.pending { background: #fff3e0; color: #e65100; }
+        .status-badge.investigating { background: #e3f2fd; color: #0d47a1; }
+        .status-badge.resolved { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.rejected { background: #ffebee; color: #c62828; }
+        .search-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-bar input { flex: 1; min-width: 200px; padding: 12px 18px; border: 2px solid #e8ecf1; border-radius: 12px; font-size: 14px; font-family: 'Poppins', sans-serif; }
+        .search-bar input:focus { border-color: #4fc3f7; outline: none; box-shadow: 0 0 0 4px rgba(79,195,247,0.15); }
+        .error-box { background: #ffebee; color: #c62828; padding: 20px; border-radius: 12px; text-align: center; }
+        .loading-text { text-align: center; color: #888; padding: 30px; }
+        .empty-text { text-align: center; color: #888; padding: 30px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand"><i class="fas fa-shield-alt"></i><span>CRMS</span></div>
+        <div class="sidebar-menu">
+            <a href="index.html"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a href="criminals.html"><i class="fas fa-user-cog"></i> <span>Criminals</span></a>
+            <a href="complaints.html" class="active"><i class="fas fa-file-alt"></i> <span>Complaints</span></a>
+            <a href="cases.html"><i class="fas fa-gavel"></i> <span>Cases</span></a>
+            <a href="reports.html"><i class="fas fa-chart-bar"></i> <span>Reports</span></a>
+        </div>
+        <div class="sidebar-footer"><a href="logout.php"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></div>
+    </div>
+
+    <div class="main-content">
+        <header class="navbar">
+            <div class="navbar-left"><h1>Complaint Management</h1><span class="subtitle">Track all complaints</span></div>
+            <div class="navbar-right"><span class="badge">Colombo HQ</span><div class="profile"><div class="avatar" id="userAvatar">A</div><span id="userName">Admin</span></div></div>
+        </header>
+
+        <div class="page-header">
+            <h2><i class="fas fa-list"></i> All Complaints</h2>
+            <button class="btn btn-primary" onclick="addComplaint()"><i class="fas fa-plus"></i> New Complaint</button>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by complainant, type, or code..." onkeyup="filterTable()">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Complainant</th><th>NIC</th><th>Type</th><th>Status</th><th>Severity</th><th>Date</th></tr>
+                </thead>
+                <tbody id="complaintsTableBody">
+                    <tr><td colspan="7" class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading complaints...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) { window.location.href = 'login.html'; } else {
+            document.getElementById('userName').textContent = user.full_name || 'Admin';
+            document.getElementById('userAvatar').textContent = (user.full_name || 'A').charAt(0).toUpperCase();
+        }
+
+        function loadComplaints() {
+            const tbody = document.getElementById('complaintsTableBody');
+            tbody.innerHTML = `<tr><td colspan="7" class="loading-text"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>`;
+
+            fetch('api/complaints.php')
+                .then(response => response.json())
+                .then(data => {
+                    tbody.innerHTML = '';
+                    if (data.status === 'error') {
+                        tbody.innerHTML = `<tr><td colspan="7" class="error-box"><i class="fas fa-exclamation-triangle"></i> Error: ${data.message}</td></tr>`;
+                        return;
+                    }
+                    if (data.data && data.data.length > 0) {
+                        data.data.forEach((c, index) => {
+                            const row = document.createElement('tr');
+                            let statusDisplay = c.status ? c.status.charAt(0).toUpperCase() + c.status.slice(1) : 'Unknown';
+                            let severityDisplay = c.severity ? c.severity.charAt(0).toUpperCase() + c.severity.slice(1) : 'Medium';
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td><strong>${c.complainant_name || 'Unknown'}</strong></td>
+                                <td>${c.complainant_nic || '-'}</td>
+                                <td>${c.complaint_type || 'General'}</td>
+                                <td><span class="status-badge ${c.status || 'pending'}">${statusDisplay}</span></td>
+                                <td>${severityDisplay}</td>
+                                <td>${new Date(c.created_at).toLocaleDateString()}</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="7" class="empty-text"><i class="fas fa-inbox"></i> No complaints found. Click "New Complaint" to add one.</td></tr>`;
+                    }
+                })
+                .catch(error => {
+                    tbody.innerHTML = `<tr><td colspan="7" class="error-box"><i class="fas fa-exclamation-triangle"></i> Failed to load data. Error: ${error.message}</td></tr>`;
+                });
+        }
+
+        function addComplaint() {
+            const name = prompt('Enter Complainant Name:');
+            if (!name) return;
+            const type = prompt('Enter Complaint Type (e.g., Theft, Harassment, Fraud):') || 'General';
+            const desc = prompt('Enter Description:') || 'No description';
+            
+            fetch('api/complaints.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    complainant_name: name,
+                    complaint_type: type,
+                    description: desc,
+                    police_station_id: 1
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || 'Complaint added successfully!');
+                loadComplaints();
+            })
+            .catch(error => alert('Error: ' + error.message));
+        }
+
+        function filterTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#complaintsTableBody tr');
+            rows.forEach(row => {
+                if (row.querySelector('.error-box') || row.querySelector('.empty-text') || row.querySelector('.loading-text')) return;
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadComplaints);
+    </script>
+</body>
+</html>
