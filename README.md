@@ -87,5 +87,4 @@ A comprehensive web-based **Criminal Record Management System** designed for Sri
 
 ### Step 1: Clone or Download
 
-```bash
-git clone https://github.com/yourusername/criminal-record-management-system.git
+https://github.com/dilshankumara001001/Criminal-Record-Management-System-CRMS-
