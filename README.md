@@ -9,7 +9,7 @@ A comprehensive web-based **Criminal Record Management System** designed for Sri
 
 ---
 
-## 📌 Features
+Features
 
 ### 🔐 Authentication & Security
 - Secure Login/Logout system
