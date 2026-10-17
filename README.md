@@ -1,4 +1,4 @@
-# 👮 Criminal Record Management System (CRMS)
+Criminal Record Management System (CRMS)
 
 A comprehensive web-based **Criminal Record Management System** designed for Sri Lanka Police to efficiently manage criminal records, complaints, cases, and generate analytical reports.
 
