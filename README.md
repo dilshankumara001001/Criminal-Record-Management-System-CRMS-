@@ -17,7 +17,7 @@ Features
 - Role-based access control (Admin, OIC, Investigator, Officer)
 - Password hashing for security
 
-### 📊 Dashboard
+## 📊 Dashboard
 - Real-time statistics cards
   - Total Arrested Criminals
   - Solved Cases
