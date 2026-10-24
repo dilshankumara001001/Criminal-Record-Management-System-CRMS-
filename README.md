@@ -11,7 +11,7 @@ comprehensive web-based **Criminal Record Management System** designed for Sri L
 
 Features
 
-##🔐 Authentication & Security
+🔐 Authentication & Security
 - Secure Login/Logout system
 - Session management with PHP
 - Role-based access control (Admin, OIC, Investigator, Officer)
